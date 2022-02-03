@@ -9,16 +9,30 @@ body {
 }
 
 button {
-  background-color: aliceblue;
+  background-color: rgb(230, 230, 230);
+  border-radius: 10px;
+  border: 0px solid black;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  width: 78px;
 }
 
 .calcbody {
   border: 4px solid black;
+  background-color: grey;
   display: grid;
   grid-template-columns: 100px 100px 100px 100px;
   grid-template-rows: auto;
   height: 500px;
   width: 400px;
+}
+
+.calcbuttons {
+  display: grid;
+  grid-template-columns: 100px 100px 100px 100px;
+  grid-template-rows: auto;
+  height: 390px;
+  justify-items: center;
 }
 
 .display {
@@ -29,9 +43,32 @@ button {
 
 .fullDisplay {
   background-color: lightgray;
+  height: 100px;
   grid-column-start: 1;
   grid-column-end: 5;
   grid-row-start: 1;
   grid-row-end: 2;
   border: 2px solid black;
+}
+
+.number {
+  background-color: rgb(83, 83, 83);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.number:hover {
+  background-color: rgb(74, 240, 240);
+  color: black;
+}
+
+.oper {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.oper:hover {
+  background-color: rgb(41, 131, 131);
+  color: white;
 }
