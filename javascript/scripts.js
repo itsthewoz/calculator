@@ -67,12 +67,12 @@ function operate(a, b) {
     answer = add(a, b);
   } else if (operand === "−") {
     answer = subtract(a, b);
-  } else if (operand === "x") {
+  } else if (operand === "×") {
     answer = multiply(a, b);
   } else {
     answer = divide(a, b);
   }
-  nOne = answer;
+  nOne = parseFloat(answer.toFixed(4));
   nTwo = "";
   operand = "";
   updateDisplay();
