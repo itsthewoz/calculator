@@ -1,105 +1,311 @@
-//vars for display value
-//vars to hold numbers
-let historyValue = ""; //top value
-let displayValue = ""; //bottom value
-let numberOne = "";
-let numberTwo = "";
-let currentValue = "";
 let operand = "";
+let nOne = "";
+let nTwo = "";
 
-const lowerDisplay = document.querySelector("#lowerDisplay");
-const upperDisplay = document.querySelector("#upperDisplay");
 const numberButtons = document.querySelectorAll(".number");
 const operButtons = document.querySelectorAll(".oper");
-const clear = document.querySelector(".clear");
-
-clear.addEventListener("click", reset);
 
 numberButtons.forEach((button) => {
   button.addEventListener("click", function (e) {
-    if (displayValue === "") {
-      displayValue = e.target.innerText;
-      updateDisplay();
-      updateHistory();
+    if (nOne === "" || nOne === "0") {
+      if (e.target.innerText !== "0") {
+        nOne = e.target.innerText;
+        updateDisplay();
+      }
     } else {
-      displayValue = displayValue + e.target.innerText;
+      nOne += e.target.innerText;
       updateDisplay();
-      updateHistory();
     }
-    console.log(e.target.innerText);
   });
 });
 
 operButtons.forEach((button) => {
   button.addEventListener("click", function (e) {
-    if (displayValue === "") {
-      return;
-    } else {
-      displayValue = displayValue + " " + e.target.innerText + " ";
+    if (
+      e.target.innerText === "-" &&
+      !Array.from(nOne).includes("-") &&
+      nOne === ""
+    ) {
+      nOne = "-" + nOne;
       updateDisplay();
+    } else if (operand === "" && nOne !== "" && nOne !== "-") {
+      setOp(e);
+      nTwo = nOne;
+      nOne = "";
       updateHistory();
+      updateDisplay();
+    } else if (operand !== "") {
+      operate(nTwo, nOne);
+      setOp(e);
+      nTwo = nOne;
+      nOne = "";
+      updateHistory();
+      updateDisplay();
     }
-    console.log(e.target.innerText);
   });
 });
 
-// window.addEventListener("keydown", function (e) {
-//   const button = document.querySelector(`button[data-key="${e.keycode}"]`);
-//   console.log(button);
-//   // if(!button) return;
-// });
-
-function pushNumberOne() {
-  numberOne = displayValue;
-}
-
-function pushNumberTwo() {
-  numberTwo = displayValue;
-}
-
 function updateDisplay() {
-  lowerDisplay.innerText = displayValue;
+  const lowerDisplay = document.querySelector(".displaybot");
+  lowerDisplay.innerText = `${nOne}`;
 }
 
 function updateHistory() {
-  upperDisplay.innerText = historyValue;
-}
-
-function add(numberOne, numberTwo) {
-  return numberOne + numberTwo;
-}
-
-function subtract(numberOne, numberTwo) {
-  return numberOne - numberTwo;
-}
-
-function multiply(numberOne, numberTwo) {
-  return numberOne * numberTwo;
-}
-
-function divide(numberOne, numberTwo) {
-  return numberOne / numberTwo;
-}
-
-function reset() {
-  let displayValue = 0;
-  let historyValue = 0;
-  let numberOne = "";
-  let numberTwo = "";
-  let currentValue = "";
-  let operand = "";
-  updateDisplay();
-  updateHistory();
-}
-
-function operate(operand, numberOne, numberTwo) {
-  if (operand === "+") {
-    add(numberOne, numberTwo);
-  } else if (operand === "-") {
-    subtract(numberOne, numberTwo);
-  } else if (operand === "*") {
-    multiply(numberOne, numberTwo);
-  } else if (operand === "/") {
-    divide(numberOne, numberTwo);
+  const upperDisplay = document.querySelector(".displaytop");
+  if (nTwo !== "" && nOne !== "") {
+    upperDisplay.innerText = `${nTwo} ${operand} ${nOne}`;
+  } else if (operand !== "") {
+    upperDisplay.innerText = `${nTwo} ${operand}`;
+  } else {
+    upperDisplay.innerText = `${nOne}`;
   }
 }
+
+function operate(a, b) {
+  let answer = "";
+  if (operand === "+") {
+    answer = add(a, b);
+  } else if (operand === "−") {
+    answer = subtract(a, b);
+  } else if (operand === "x") {
+    answer = multiply(a, b);
+  } else {
+    answer = divide(a, b);
+  }
+  nOne = answer;
+  nTwo = "";
+  operand = "";
+  updateDisplay();
+}
+
+const equal = document.querySelector(".equal");
+equal.addEventListener("click", () => {
+  if (nTwo !== "" && nOne !== "") {
+    updateHistory();
+    operate(nTwo, nOne);
+    nOne = "";
+  }
+});
+
+const deci = document.querySelector("[data-key='.']");
+deci.addEventListener("click", () => {
+  if (nOne !== "" || nOne !== "0") {
+    if (Array.from(nOne).includes(".")) {
+      return;
+    } else {
+      nOne += ".";
+      updateDisplay();
+    }
+  }
+});
+
+const perc = document.querySelector("[data-key='%']");
+perc.addEventListener("click", () => {
+  if (nOne !== "" || nOne !== "0") {
+    if (Array.from(nOne).includes("-")) {
+      nOne = divide(-nOne, 100);
+      nOne = "-" + nOne;
+      updateDisplay();
+    } else {
+      nOne = divide(nOne, 100);
+      updateDisplay();
+    }
+  }
+});
+
+const plusmin = document.querySelector("[data-key='999']");
+plusmin.addEventListener("click", () => {
+  if (nOne !== "" || nOne !== "0") {
+    nOne = -nOne;
+    updateDisplay();
+  }
+});
+
+const clear = document.querySelector("[data-key='Delete']");
+clear.addEventListener("click", () => {
+  nOne = "";
+  nTwo = "";
+  operand = "";
+  updateDisplay();
+  updateHistory();
+});
+
+const undo = document.querySelector("[data-key='Backspace']");
+undo.addEventListener("click", () => {
+  if (nOne !== "") {
+    popNum();
+    updateDisplay();
+    updateHistory();
+  } else if (nTwo !== "" && operand !== "") {
+    popOper();
+    nOne = nTwo;
+    nTwo = "";
+    updateDisplay();
+    updateHistory();
+  }
+});
+
+function popNum() {
+  let arrNum = Array.from(nOne);
+  arrNum.pop();
+  let arrStr = arrNum.toString();
+  let finStr = arrStr.replace(/,/g, "");
+  nOne = finStr;
+}
+
+function popOper() {
+  let arrOp = Array.from(operand);
+  arrOp.pop();
+  let arrStr = arrOp.toString();
+  // let finStr = arrStr.replace(/,/g, "");
+  operand = arrStr;
+}
+
+function setOp(e) {
+  operand = e.target.innerText;
+}
+
+function keySetOp(butPress) {
+  operand = butPress.innerText;
+}
+
+function add(a, b) {
+  return Number(a) + Number(b);
+}
+
+function subtract(a, b) {
+  return Number(a) - Number(b);
+}
+
+function multiply(a, b) {
+  return Number(a) * Number(b);
+}
+
+function divide(a, b) {
+  return Number(a) / Number(b);
+}
+
+window.addEventListener("load", () => {
+  updateDisplay();
+});
+
+//keyboard functions - Fix this function its too long! Bake into old functions or separate.
+
+window.addEventListener("keydown", (e) => {
+  const butPress = document.querySelector(`button[data-key="${e.key}"]`);
+  if (!butPress) {
+    return;
+  } else if (butPress.classList.contains("number")) {
+    //key input and function to set numbers
+    if (nOne === "" || nOne === "0") {
+      if (butPress.innerText !== "0") {
+        nOne = butPress.innerText;
+        updateDisplay();
+      }
+    } else {
+      nOne += butPress.innerText;
+      updateDisplay();
+    }
+  } else if (butPress.classList.contains("oper")) {
+    //key input and funtion to set operand
+    if (
+      butPress.innerText === "-" &&
+      !Array.from(nOne).includes("-") &&
+      nOne === ""
+    ) {
+      nOne = "-" + nOne;
+      updateDisplay();
+    } else if (operand === "" && nOne !== "" && nOne !== "-") {
+      keySetOp(butPress);
+      nTwo = nOne;
+      nOne = "";
+      updateHistory();
+      updateDisplay();
+    } else if (operand !== "") {
+      operate(nTwo, nOne);
+      keySetOp(butPress);
+      nTwo = nOne;
+      nOne = "";
+      updateHistory();
+      updateDisplay();
+    }
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  const butPress = document.querySelector(`button[data-key="${e.key}"]`);
+  if (!butPress) {
+    return;
+  } else if (butPress.classList.contains("backspace")) {
+    if (nOne !== "") {
+      popNum();
+      updateDisplay();
+      updateHistory();
+    } else if (nTwo !== "" && operand !== "") {
+      popOper();
+      nOne = nTwo;
+      nTwo = "";
+      updateDisplay();
+      updateHistory();
+    }
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  const butPress = document.querySelector(`button[data-key="${e.key}"]`);
+  if (!butPress) {
+    return;
+  } else if (butPress.classList.contains("equal")) {
+    if (nTwo !== "" && nOne !== "") {
+      updateHistory();
+      operate(nTwo, nOne);
+    }
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  const butPress = document.querySelector(`button[data-key="${e.key}"]`);
+  if (!butPress) {
+    return;
+  } else if (butPress.classList.contains("deci")) {
+    if (nOne !== "" || nOne !== "0") {
+      if (Array.from(nOne).includes(".")) {
+        return;
+      } else {
+        nOne += ".";
+        updateDisplay();
+      }
+    }
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  const butPress = document.querySelector(`button[data-key="${e.key}"]`);
+  if (!butPress) {
+    return;
+  } else if (butPress.classList.contains("delete")) {
+    nOne = "";
+    nTwo = "";
+    operand = "";
+    updateDisplay();
+    updateHistory();
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  const butPress = document.querySelector(`button[data-key="${e.key}"]`);
+  if (!butPress) {
+    return;
+  } else if (butPress.classList.contains("perc")) {
+    if (nOne !== "" || nOne !== "0") {
+      if (Array.from(nOne).includes("-")) {
+        nOne = divide(-nOne, 100);
+        nOne = "-" + nOne;
+        updateDisplay();
+      } else {
+        nOne = divide(nOne, 100);
+        updateDisplay();
+      }
+    }
+  }
+});
